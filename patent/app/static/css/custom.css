@@ -1,0 +1,13 @@
+#condition_refresh_btn {
+
+    border : none;
+    background-color : transparent;
+    padding : 0;
+    width : 1.5em;
+    height : 1.5em;
+    // background: url('/static/img/condition_refresh.png') no-repeat;
+}
+
+#condition_refresh_btn img {
+    width : 100%;
+}

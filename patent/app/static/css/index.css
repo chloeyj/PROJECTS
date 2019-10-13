@@ -1,0 +1,50 @@
+.header_container {
+	box-sizing: border-box;
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+
+	background-color: white:
+	height: 77px;
+	border-bottom: #E6E6E6 solid 1px; 
+
+	padding-left: 20px;
+	padding-right: 20px;
+
+}
+.option_select_container{
+	box-sizing: border-box;
+	display: flex;
+	justify-content: space-between;
+}
+.submit_container{
+	padding-left: 20px;
+	margin-top: 20px;
+}
+.button-wrap{
+	display: flex;
+	justify-content: center;
+	margin-top: 20px;
+}
+.backTesting_info_container{
+	margin-right: 10px;
+}
+.backTesting_result_container{
+	display: flex;
+	justify-content: center;
+	text-align: center;
+	height: 300px;
+	width: 100%;
+}
+.back_title{
+	font-size: 15px;
+	/*padding-left: 20px;*/
+	padding-left: 40px;
+}
+.back_num{
+	padding-top: 10px;
+	font-size: 15px;
+	/*padding-left: 20px;*/
+	text-align: center;
+	padding-left: 40px;
+}

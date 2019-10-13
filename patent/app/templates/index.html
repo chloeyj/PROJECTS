@@ -1,0 +1,977 @@
+<!-- 검색 메인 페이지 -->
+<!DOCTYPE html>
+{% load staticfiles %}
+<html>
+<head>
+    <!--<meta http-equiv="x-ua-compatible" content="IE=9">-->
+    <meta charset="UTF-8">
+    <title>빅데이터 기업검색시스템</title>
+    <script
+        src="https://code.jquery.com/jquery-3.3.1.min.js"
+        integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="
+        crossorigin="anonymous"></script>
+    <script src="{% static 'vendor/bootstrap/js/bootstrap-tagsinput.js' %}"></script>
+    <script src="{% static 'vendor/popper/popper.min.js' %}"></script>
+    <script src="{% static 'vendor/bootstrap/js/bootstrap.min.js' %}"></script>
+    <script src='https://cdn.datatables.net/1.10.16/js/jquery.dataTables.min.js'></script>
+    <script src='https://cdn.datatables.net/1.10.16/js/dataTables.bootstrap4.min.js'></script>
+    <script src="//cdn.rawgit.com/ashl1/datatables-rowsgroup/v1.0.0/dataTables.rowsGroup.js"></script>
+    <script src="https://code.highcharts.com/stock/highstock.js"></script>
+    <script src="https://code.highcharts.com/stock/modules/exporting.js"></script>
+    <script src="{% static 'js/xlsx.full.min.js' %}"></script>
+    <script src="{% static 'js/waitingfor.js' %}"></script>
+    <link rel="stylesheet" href="{% static 'vendor/bootstrap/css/bootstrap-tagsinput.css' %}">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.10.16/css/dataTables.bootstrap4.min.css">
+    <link rel="stylesheet" href="{% static 'css/index.css' %}">
+    <link rel="stylesheet" href="{% static 'css/custom.css' %}">
+    <link href = "https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <!--<link href = "https://fontawesome.com/icons/clipboard-list?style=light" rel = "stylesheet">-->
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.0.8/css/all.css" integrity="sha384-3AB7yXWz4OeoZcPbieVW64vVXEwADiYyAEhwilzWsLw+9FgqpyjjStpPnpBO8o8S" crossorigin="anonymous">
+
+    <!-- Latest compiled and minified CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.12.4/css/bootstrap-select.min.css">
+
+    <!-- Tags Input CSS -->
+    <link rel="stylesheet" href="{% static 'css/tagsinput.css' %}">
+
+    <!-- Latest compiled and minified JavaScript -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.12.4/js/bootstrap-select.min.js"></script>
+
+    <!-- Fetch & Bluebird -->
+    <script src="//cdn.jsdelivr.net/bluebird/3.5.0/bluebird.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/fetch/2.0.3/fetch.js"></script>
+
+    <!-- Celery Progress -->
+    <script src="{% static 'js/celery_progress.js' %}"></script>
+
+    <!-- Tags Input JavaScript -->
+    <script src="{% static 'js/tagsinput.js' %}"></script>
+
+    <style>
+        table thead th {
+            text-align : center;
+        }
+
+        .mask{
+            background-color : #000;
+            position : absolute;
+            display : none;
+            z-index : 9000;
+            opacity : 0.3;
+            height : 100%;
+            width : 100%;
+            left : 0;top : 0;
+        }
+
+        .load-box{
+            position : absolute;
+            display : none;
+            z-index : 9900;
+            height : 200px;
+            width : 200px;
+            opacity : 1;
+        }
+
+        .load-box img{
+            height : 50%;
+            width : 50%;
+        }
+
+        .progress-bar{
+            height : 2rem;
+        }
+
+        .container-fluid {
+            padding-right : 0px;
+            padding-left : 0px;
+        }
+
+        /* Important part */
+        .custom-modal-dialog{
+            overflow-y: initial !important
+        }
+
+        .custom-modal-body{
+            height : 500px;
+            overflow-y : auto;
+        }
+
+        .notBtn{
+            cursor : auto;
+            color : inherit;
+        }
+
+        .notBtn:hover{
+            color : inherit;
+            text-decoration : none;
+        }
+
+        .custom-row{
+            height : 2.3em;
+            line-height : 2.3em;
+            vertical-align : middle;
+        }
+
+        .bootstrap-tagsinput {
+            flex: 0 0 50%;
+            max-width : 50%
+        }
+
+        .badge {
+            font-size : 90%;
+            font-weight : 500;
+        }
+
+        .bootstrap-tagsinput {
+            flex : 0 0 60%;
+            max-width : 60%;
+        }
+
+    </style>
+</head>
+<body>
+    <div class = "container" style = "margin-top : 3em">
+        <div class = "row">
+            <div class = "col-lg-12">
+                <div class = "card h-100">
+                    <div class = "card-header">
+                        <span>빅데이터 기업 검색 시스템</span>
+                        <button class="btn btn-link"  type="button" data-toggle="modal" data-target="#searchInfoModal">
+                                    <i class="fa fa-info-circle"></i>
+                        </button>
+                        <button class = "btn btn-outline-info" style = "float : right; " onclick = "location.href='{% url 'app:db' %}'">기업 DB 관리</button>
+                        <button class = "btn btn-outline-primary" onclick = "location.href='{% url 'logout' %}'" style = "float : right; margin-right : 0.3rem">LOGOUT</button>
+                        <input type = "text" class = "form-control" style = "float : right; width : 10%; margin-right : 0.3rem; text-align : center" value = "{{request.user.username}} 님" readonly>
+                        <!--<span><a href= "{% url 'logout' %}">LOGOUT</a></span>-->
+
+                    </div>
+                    <div class = "card-body text-center">
+                        <div class = "col-sm-12 text-left" style = "margin : 0 auto;">
+                            <div class = "accordion" id = "accordionExample">
+                                <div class = "card">
+                                    <div class = "card-header" style = "background : none">
+                                        <h5 class = "mb-0">
+                                            <button class = "btn btn-link collapsed notBtn" type = "button">검색 옵션 설정</button>
+
+                                        </h5>
+                                    </div>
+                                    <div class = "card-body">
+                                        <div class = "form-group row custom-row">
+                                            <label class = "col-sm-3 pt-0 text-right"><span style = "color : red">*</span> 활용 여부 선택</label>
+                                            <label class="col-sm-1" style = "flex : 0 0 10%; max-width : 10%; text-align : center">HTML</label>
+                                            <div class="col-sm5" style = "padding-left : 0;">
+                                                <select class = "form-control" name = "html-select">
+                                                    <option value = "1">활용</option>
+                                                    <option value = "0">활용 안함</option>
+                                                </select>
+                                                <!--<input type="text" class="form-control" placeholder="First name">-->
+                                            </div>
+                                            <label class="col-sm-1" style = "text-align : center">PDF</label>
+                                            <div class="col-sm5" style = "padding-left : 0;">
+                                                <select class = "form-control" name = "pdf-select">
+                                                    <option value = "1">활용</option>
+                                                    <option value = "0" selected>활용 안함</option>
+                                                </select>
+                                            </div>
+                                            <!--<div class ="form-check">-->
+                                                <!--<input class = "form-check-input" type = "checkbox" id = "inlineCheckbox1" value = "option1" checked>-->
+                                                <!--<label class = "form-check-label" for = "inlineCheckbox1">HTML</label>-->
+                                            <!--</div>-->
+                                            <!--<div class ="form-check">-->
+                                                <!--<input class = "form-check-input" type = "checkbox" id = "inlineCheckbox2" value = "option2">-->
+                                                <!--<label class = "form-check-label" for = "inlineCheckbox2">PDF</label>-->
+                                            <!--</div>-->
+                                        </div>
+                                        <div class = "form-group row custom-row">
+                                            <label class = "col-sm-3 pt-0 text-right" style = "display: block; padding-top:5px;"><span style = "color : red">*</span> 검색 키워드</label>
+                                            <input class = "form-control col-sm-8" type = "text" data-role='tagsinput' id = "keyword-input" required>
+                                        </div>
+                                        <div class = "form-group row custom-row">
+                                            <label class = "col-form-label col-sm-3 pt-0 text-right">관련 키워드</label>
+                                            <input class = "form-control col-sm-8" type = "text" data-role="tagsinput" id = "related-keyword-input">
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class = "card">
+                                    <div class = "card-header" id = "headingTwo" style = "background : none">
+                                        <h5 class = "mb-0">
+                                            <button class = "btn btn-link collapsed" type = "button" style = ""
+                                                    data-toggle="collapse" data-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">상세 옵션 설정</button>
+                                        </h5>
+                                    </div>
+                                    <div id = "collapseTwo" class = "collapse" aria-labelledby="headingTwo" data-parent="#accordionExample">
+                                        <div class = "card-body">
+                                            <div class = "form-group row custom-row">
+                                                <label class = "col-sm-3 pt-0 text-right">문서 내 포함 키워드</label>
+                                                <input class = "form-control col-sm-6" type = "text" data-role="tagsinput" id = "required-keyword-input">
+                                            </div>
+                                            <div class = "form-group row custom-row">
+                                                <label class = "col-sm-3 pt-0 text-right">문서 내 제외 키워드</label>
+                                                <input class = "form-control col-sm-6" type = "text" data-role="tagsinput" id = "except-keyword-input">
+                                            </div>
+                                            <div class = "form-group row custom-row">
+                                                <label class = "col-sm-3 pt-0 text-right">유사어(동의어 검색)</label>
+                                                <input class = "form-control col-sm-6 btn-light" type = "button" id = "syn-search" value = "검색" style = "flex : 0 0 60%; max-width : 60%; border : 1px solid #DFDFDF">
+
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class = "card text-center" style = "border: none; margin-top : 2em; margin-bottom : 2em;">
+                                    <button class = "btn btn-primary" style = "width : 100%; margin : 0 auto;" id = "search-btn">검색</button>
+                                    <button class = "btn btn-primary" style = "width : 100%; margin : 0 auto; display : none" id = "stop-btn">검색 중지</button>
+                                </div>
+                            </div>
+                            <div class = "progress-wrapper">
+                                <div id = "progress-bar" class = "progress-bar" style = "background-color : #68a9ef; width : 0%">&nbsp;</div>
+                                <input type = "hidden" id = "task_id">
+                                <input type = "hidden" id = "progress-percentage">
+                            </div>
+                            <div id = "progress-bar-message" style = "display : none">Waiting for progress to start ...</div>
+                            <!--<fieldset class = "form-group">-->
+                                <!--<div class = "row">-->
+                                    <!--<legend class = "col-form-label col-sm-2 pt-0">활용 문서 종류</legend>-->
+                                    <!--<div class = "col-sm-10">-->
+                                        <!--<div class = "form-check">-->
+                                            <!--<input class = "form-check-input" type = "checkbox" id = "inlineCheckbox1" value = "option1" checked>-->
+                                            <!--<label class = "form-check-label" for = "inlineCheckbox1">HTML</label>-->
+                                        <!--</div>-->
+                                        <!--<div class = "form-check">-->
+                                            <!--<input class = "form-check-input" type = "checkbox" id = "inlineCheckbox2" value = "option2">-->
+                                            <!--<label class = "form-check-label" for = "inlineCheckbox2">PDF</label>-->
+                                        <!--</div>-->
+                                    <!--</div>-->
+                                <!--</div>-->
+                            <!--</fieldset>-->
+                        </div>
+                        <!--<div class = "col-sm-10 text-left" style = "margin : 0 auto;">-->
+                            <!--<div class="form-check form-check-inline" style = "margin-right : .75em; margin-left : 1.75em">-->
+                                <!--<input class="form-check-input" type="checkbox" id="inlineCheckbox1" value="option1" style = "top : .2em" checked>-->
+                                <!--<label class="form-check-label" for="inlineCheckbox1" style = "padding-left : 0">HTML 문서</label>-->
+                            <!--</div>-->
+                            <!--<div class="form-check form-check-inline" style = "margin-right : .75em">-->
+                                <!--<input class="form-check-input" type="checkbox" id="inlineCheckbox2" value="option2" style = "top : .2em">-->
+                                <!--<label class="form-check-label" for="inlineCheckbox2" style = "padding-left : 0">PDF 문서</label>-->
+                            <!--</div>-->
+                        <!--</div>-->
+                        <!--<div class = "col-sm-10" style = "margin : 0 auto">-->
+                            <!--<select class = "form-control" id = "search-select" style = "font-size : 0.9rem; width : 25%; float : left; margin-right : 1.5%">-->
+                                <!--<option>일반 검색 (조건식 검색)</option>-->
+                                <!--<option>유사어 확장 검색</option>-->
+                            <!--</select>-->
+                            <!--<input type = "text" style = "width : 30%; float : left; margin-right : 1.5%" class = "form-control" id = "keyword-input1" placeholder = "검색 키워드 또는 조건식">-->
+                            <!--<input type = "text" style = "width : 29%; float : left; margin-right : 1.5%" class = "form-control" id = "keyword-input2" placeholder = "관련 키워드 (쉼표로 구분)">-->
+                            <!--<button class = "btn btn-primary" style = "width : 10%; float : left" id = "search-btn">검색</button>-->
+                            <!--<button class = "btn btn-primary" style = "width : 10%; float : left; display : none" id = "stop-btn">검색 중지</button>-->
+
+                        <!--</div>-->
+                        <div class = "col-sm-10" style = "margin : 0 auto;" id = "search-info-modal">
+                                <!-- 조건식 Modal -->
+                                <div class="modal fade" id="searchInfoModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+                                    <div class="modal-dialog modal-dialog-centered custom-modal-dialog" role="document">
+                                        <div class="modal-content" style = "font-size : 80%">
+                                            <div class="modal-header">
+                                                <h5 class="modal-title" id="exampleModalLongTitle2">시스템 사용 매뉴얼</h5>
+                                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                                    <span aria-hidden="true">&times;</span>
+                                                </button>
+                                            </div>
+                                            <div class="modal-body custom-modal-body">
+                                                <p class = "text-left">
+                                                    <span style = "font-weight : 600">[검색 방법]</span><br><br>
+                                                    ◼ (필수) 문서 종류에 따른 활용 여부 선택 (일반 HTML 문서 / PDF 파일 문서)<br>
+                                                    ◼ (필수) 검색 키워드 입력 <br>
+                                                    ◼ 관련 키워드 입력 <br>
+                                                    ◼ 상세 옵션 설정 <br>
+                                                    ◼ 검색 버튼 클릭
+                                                </p>
+                                                <p class = "text-left">
+                                                    <span style = "font-weight : 600">[검색 키워드 & 관련 키워드 비교]</span><br><br>
+                                                    ◼ 검색 키워드<br>
+                                                    ⦁ 검색 키워드 : 구글 검색 엔진에 입력할 검색 키워드로 1개 이상 필수 입력합니다. 여러 개의 검색 키워드를 사용하면 기업 검색에 활용할 문서의 개수를 증가시킬 수 있습니다. <br><br>
+                                                    ◼ 관련 키워드<br>
+                                                    ⦁ 관련 키워드 : 검색 키워드와 관련된 키워드로 검색 결과 필터링 시 활용합니다. ex) "혈당 센서"와 관련되어 등장할 수 있는 관련 키워드 : 진단, 당뇨<br>
+                                                    ⦁ 검색 결과 필터링 방식 : 기업명이 추출된 일정한 영역 내에 확장 키워드 리스트 내 단어가 존재하지 않으면 관련이 없는 단어로 판단하여 필터링합니다. <br>
+                                                    ⦁ 확장 키워드 리스트 : 검색 키워드와 관련 키워드를 포함하여 확장 생성되는 키워드 리스트<br>
+                                                    ⦁ 확장 키워드 리스트 예시 : 검색 키워드 (증강 현실) + 관련 키워드 (AR, 가상 현실) -> 확장 키워드 리스트 (증강, 가상, 현실, AR, 증강 현실, 가상 현실, 증강현실, 가상현실)
+                                                </p>
+                                                <p class = "text-left">
+                                                    <span style = "font-weight : 600">[문서 내 포함 키워드 및 문서 내 제외 키워드]</span><br><br>
+                                                    ◼ 문서 내 포함 키워드 : 구글 검색 결과로 나오는 문서 필터링에 사용하는 키워드로, 해당 키워드가 반드시 포함된 문서만 검색이 됩니다.<br>
+                                                    ◼ 문서 내 제외 키워드 : 구글 검색 결과로 나오는 문서 필터링에 사용하는 키워드로, 해당 키워드가 포함되지 않은 문서만 검색이 됩니다.<br>
+
+                                                </p>
+                                                <p class = "text-left">
+                                                    <span style = "font-weight : 600">[유사어 확장 검색 동작 방식]</span><br><br>
+                                                    1. 키워드 내 명사 N개를 추출한다. <br>
+                                                    2. 각 명사를 구글 번역 API를 사용하여 영어로 번역한다. <br>
+                                                    3. Wordnet을 사용하여 유사어를 찾는다. <br>
+                                                    4. 유사어를 다시 구글 번역 API를 사용하여 한글로 번역한다. <br>
+                                                    5. 키워드 내 기존 단어(명사)를 번역된 유사어로 변경하여 확장한다. <br>
+                                                    6. 확장된 키워드를 확인하고 원하는 키워드를 모두 사용하여 검색한다. <br>
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                        </div>
+                    </div>
+                    <div class = "card-body" id = "search-info" style = "display : none">
+                        <h5 class = "card-title">검색 결과 통계</h5>
+                        <ul class="list-group">
+                            <li class="list-group-item d-flex justify-content-between align-items-center" id = "all_url_num">
+                            Google CSE 결과 URL 개수
+                            <span class="badge badge-primary badge-pill"></span>
+                            </li>
+                            <li class="list-group-item d-flex justify-content-between align-items-center" id = "html_url_num">
+                            검색에 활용한 HTML URL 개수
+                            <span class="badge badge-primary badge-pill"></span>
+                            </li>
+                            <li class="list-group-item d-flex justify-content-between align-items-center" id = "found_url_num_in_html">
+                            HTML 문서 중 기업명을 추출한 HTML 개수
+                            <span class="badge badge-primary badge-pill"></span>
+                            </li>
+                            <li class="list-group-item d-flex justify-content-between align-items-center" id = "found_company_num_in_html">
+                            HTML 문서 내 추출된 기업명 개수
+                            <span class="badge badge-primary badge-pill"></span>
+                            </li>
+                            <li class="list-group-item d-flex justify-content-between align-items-center" id = "pdf_url_num">
+                            검색에 활용한 PDF URL 개수
+                            <span class="badge badge-primary badge-pill"></span>
+                            </li>
+                            <li class="list-group-item d-flex justify-content-between align-items-center" id = "found_url_num_in_pdf">
+                            PDF 문서 중 기업명을 추출한 문서 개수
+                            <span class="badge badge-primary badge-pill"></span>
+                            </li>
+                            <li class="list-group-item d-flex justify-content-between align-items-center" id = "found_company_num_in_pdf">
+                            PDF 문서 내 추출된 기업명 개수
+                            <span class="badge badge-primary badge-pill"></span>
+                            </li>
+                            <li class="list-group-item d-flex justify-content-between align-items-center" id = "found_company_num_in_all">
+                            추출된 기업명 총 개수
+                            <span class="badge badge-primary badge-pill"></span>
+                            </li>
+                            <li class="list-group-item d-flex justify-content-between align-items-center" id = "running_time">
+                            총 소요 시간
+                            <span class="badge badge-primary badge-pill"></span>
+                            </li>
+                        </ul>
+                    </div>
+                    <div class = "card-body text-center" id = "result-div" style = "display : none">
+                        <div class = "col-sm-12" style = "margin : 0 auto">
+                            <div class = "card">
+                                <div class = "card-header" style = "text-align : left; background : none">
+                                    <h5 class = "mb-0">
+                                        <button class = "btn btn-link collapsed notBtn" type = "button">검색 결과</button>
+
+                                    </h5>
+                                </div>
+                                <div class = "card-body text-center">
+                                    <label for="result-select-1" class="col-sm-3 col-form-label" style = "float : left; text-align : center;">활용 문서 종류</label>
+                                    <select class = "form-control" id = "result-select-1" name = "result-select" style = "font-size : 0.9rem; width : 15%; float : left;">
+                                        <option value = "html">HTML 문서</option>
+                                        <option value = "pdf">PDF 문서</option>
+                                    </select>
+                                    <label for="result-select-2" class="col-sm-3 col-form-label" style = "float : left; text-align : center;">검색 방식 분류</label>
+                                    <select class = "form-control" id = "result-select-2" name = "result-select" style = "font-size : 0.9rem; width : 18%; float : left;">
+                                        <option value = "case0">패턴 기반 검색</option>
+                                        <option value = "case1">기업 DB 기반 검색</option>
+                                    </select>
+                                    <div class = "col-sm-12" id = "result-div1" style = "float : left; margin-top : 1em; padding : 0">
+                                        <table class = "table table-bordered" cellspacing="0" width = "100%;" style = "margin-top : 1em"></table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- Company Info Modal -->
+        <div class="modal fade" id="companyInfoModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered" role="document">
+                <div class="modal-content" style = "font-size : 80%">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="">기업 상세 정보</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <form>
+                            <div class="form-group">
+                                <label for="company-name" class="col-form-label">기업명:</label>
+                                <input type="text" class="form-control" id="company-name">
+                                <label for="business-type" class="col-form-label">업종:</label>
+                                <input class="form-control" id="business-type">
+                                <label for="company-type" class="col-form-label">기업형태:</label>
+                                <input class="form-control" id="company-type">
+                                <label for="website-url" class="col-form-label">홈페이지:</label>
+                                <input class="form-control" id="website-url">
+                                <label for="contact-number" class="col-form-label">대표전화:</label>
+                                <input class="form-control" id="contact-number">
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- Add Modal -->
+        <div class="modal fade" id="companyAdd" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered" role="document">
+                <div class="modal-content" style = "font-size : 80%">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="exampleModalLongTitle1">기업 정보 추가</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <select class = "form-control" id = "company-add-type-select" style = "width : 25%; float : left;">
+                            <option selected>국내</option>
+                            <option>국외</option>
+                        </select>
+                        <input type = "text" style = "width : 65%; float : left;" class = "form-control" id = "company-add-input">
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-primary" id = "company-add-btn">추가</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 유사어 검색 -->
+        <div class="modal fade" id="synSearch" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered" role="document">
+                <div class="modal-content" style = "font-size : 80%">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="exampleModalLongTitle3">Wordnet 기반 유사어(동의어) 검색</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <div class = "form-group">
+                            <div id = "syn-search-wrap">
+                                <input type = "text" class = "form-control" style = "width : 75%; float : left; margin-right : 5%" id = "keyword" placeholder = "검색 키워드를 입력하세요">
+                                <button type = "button" id = "syn-search-btn" class = "btn btn-info" style = "width : 20%; float : right;">검색</button>
+                            </div>
+                        </div>
+                        <div class = "form-group" style = "margin-top : 3rem">
+                            <div id="syn-result-wrap">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-primary" id = "syn-add-btn">검색 키워드 사용</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="mask"></div>
+    <div class="load-box center"><img src = "{% static 'img/load.gif' %}"></div>
+    <!-- footer -->
+    <footer class="py-5">
+      <div class="container">
+        <p class="m-0 text-center">Copyright &copy; Sejong University, South Korea 2019</p>
+      </div>
+      <!-- /.container -->
+    </footer>
+
+<script>
+
+    $(document).ready(function(){
+
+        $.ajaxSetup({ cache: false });
+
+        var url = "{% url 'app:get_sample_result' %}";
+
+        // change result datatable
+        $('select[name=result-select]').on('change', function(e){
+
+            e.preventDefault();
+
+            var doc_type = $("select[id=result-select-1]").val(),
+                case_type = $("select[id=result-select-2]").val();
+
+            // $('#result-div1 table').DataTable().clear().draw();
+
+            if (doc_type == "html"){
+                make_datatable(result_data[0], "#result-div1", case_type);
+            } else {
+                // $("#keyword-input1").css("display", "block");
+                make_datatable(result_data[1], "#result-div1", case_type);
+            }
+
+        });
+
+        $("#syn-search").on("click", function(){
+            $("#synSearch").modal("show");
+        });
+
+        $("#search-select").change(function(){
+
+            var value = $("#search-select").val();
+
+            if (value == "일반 검색 (조건식 검색)"){
+                $("#condition-search-info").css("display", "none");
+                $("#keyword-input1").css("width", "30%");
+                $("#keyword-input2").css("width", "29%");
+                $("#keyword-input1").prop("readonly", false);
+            } else { // 유사어 확장 검색
+                $("#condition-search-info").css("display", "none");
+                $("#keyword-input1").css("display", "block");
+                $("#keyword-input1").prop("readonly", true);
+                // $("#synSearch").modal("show");
+
+                $("#keyword-input1").on("click", function(){
+                    $("#synSearch").modal("show");
+                });
+            }
+        });
+
+        $("#syn-search-btn").on("click", function(){
+
+            var keyword = $("#keyword").val(),
+                url = "{% url 'app:get_derived_query_list' %}?keyword=" + encodeURIComponent(keyword);
+
+            $("#syn-search-btn").html("검색 중");
+            $.ajax({
+                cache : false,
+                type : "GET",
+                url : url,
+                success : function(data){
+
+                    $("#syn-search-btn").html("검색 완료");
+
+                    if (data.length >= 1){
+                        for (var i = 0; i < data.length; i++){
+
+                            var keyword = data[i];
+
+                            if (i == 0){
+                                check_div = '<div class="custom-control custom-checkbox">' +
+                                    '<input name = "syn-word" type="checkbox" class="custom-control-input" id="' + keyword + '" checked>' +
+                                    '<label class="custom-control-label" for="' + keyword + '">' + keyword + '</label></div>';
+
+                            } else {
+                                check_div = '<div class="custom-control custom-checkbox">' +
+                                    '<input name = "syn-word" type="checkbox" class="custom-control-input" id="' + keyword + '">' +
+                                    '<label class="custom-control-label" for="' + keyword + '">' + keyword + '</label></div>';
+                            }
+                            $("#syn-result-wrap").append(check_div);
+
+                        }
+                    } else {
+                        $("#syn-result-wrap").html("<p>유사어 없음</p>");
+                    }
+
+                }, error : function(request, status, error){
+                    // pass
+                }
+            });
+
+        });
+
+        $("#syn-add-btn").on("click", function(){
+
+            var syn_words = [];
+
+            $("input[name='syn-word']:checked").each(function(){
+              syn_words.push($(this).attr("id"));
+            });
+
+            if (syn_words == []){
+                alert("검색에 사용할 키워드를 한 개 이상 선택하세요");
+            } else {
+                for (var i = 0; i < syn_words.length; i++){
+                    $("#keyword-input").tagsinput('add', syn_words[i]);
+                };
+                $("#synSearch").modal("hide");
+            };
+        });
+
+        $("#search-btn").on("click", function(){
+
+            var html_select = $("select[name='html-select']").val(),
+                pdf_select = $("select[name='pdf-select']").val(),
+                keyword_list = $("#keyword-input").val(),
+                related_keyword_list = $("#related-keyword-input").val(),
+                required_keyword_list = $("#required-keyword-input").val(),
+                except_keyword_list= $("#except-keyword-input").val();
+
+            if ((html_select == 0) & (pdf_select == 0)){
+                alert("활용할 문서 종류를 한 개 이상 선택하세요");
+            } else if (keyword_list == ""){
+                alert("검색 키워드를 입력하세요");
+            } else if (keyword_list.split(",").length >= 4){
+                alert("검색 키워드는 최대 3개 입력 가능합니다");
+            } else {
+
+                if (related_keyword_list == ""){
+                    var c = confirm("관련 키워드를 사용하였을 때 검색 성능이 향상됩니다. 이대로 그냥 진행하시겠습니까?");
+                    if (c == false){return;}
+                }
+
+                execute_search(html_select, pdf_select, keyword_list, related_keyword_list, required_keyword_list, except_keyword_list);
+            }
+        });
+
+        $("#stop-btn").on("click", function(){
+
+            var task_id = $("#task_id").val(),
+                select_val = $("#search-select").val(),
+                syn = "";
+
+            if (select_val == "유사어 확장 검색"){
+                syn = "True";
+            }
+
+            $("#search-btn").css("display", "block");
+            $("#stop-btn").css("display", "none");
+
+            var url = "{% url 'app:stop_task' %}?task_id=" + task_id;
+
+
+            $.ajax({
+                cache : false,
+                type : "GET",
+                url : url,
+                success : function(){
+
+                    $("#search-select").val("일반 검색");
+                    $("#stop-btn").css("display", "none");
+                    $("#search-btn").css("display", "block");
+
+                }, error : function(request, status, error){
+
+                }
+            });
+        });
+
+        $(".open-company-add-modal").click(function(){
+            $("#company-add-input").val($(this).attr("id"));
+            $('#companyAdd').modal("show");
+        });
+
+        $("#company-add-btn").click(function(){
+
+            var name = $("#company-add-input").val(),
+                type = $("#company-add-type-select").val();
+
+
+            $('#companyAdd').modal("hide");
+
+            if (type == "국내"){
+                    type = "domestic";
+            } else {
+                type = "abroad";
+            }
+
+            var url = "{% url 'app:insert_db' %}?type=" + encodeURIComponent(type) + "&company=" + encodeURIComponent(name);
+
+            $.ajax({
+                cache : false,
+                type : "GET",
+                url : url,
+                success : function(task_id){
+                    $('.mask').hide();
+                    $('.load-box').hide();
+                    alert("기업 DB에 추가되었습니다");
+                }, error : function(request, status, error){
+
+                }
+            });
+
+        });
+
+        function execute_search(html_select, pdf_select, keyword_list, related_keyword_list, required_keyword_list, except_keyword_list){
+
+            var date_temp = new Date().getTime();
+
+            var url = "{% url 'app:search' %}?html_select=" + encodeURIComponent(html_select) +
+                                            "&pdf_select=" + encodeURIComponent(pdf_select) +
+                                            "&keyword_list=" + encodeURIComponent(keyword_list) +
+                                            "&related_keyword_list=" + encodeURIComponent(related_keyword_list) +
+                                            "&required_keyword_list=" + encodeURIComponent(required_keyword_list) +
+                                            "&except_keyword_list=" + encodeURIComponent(except_keyword_list) +
+                                            "&date_temp=" + date_temp;
+
+
+            $("#search-info").css("display", "none");
+            $("#result-div").css("display", "none");
+            $("#progress-percentage").val("");
+            $("#progress-bar-message").css("display", "block");
+            $(".progress-bar").css("height", "2rem");
+            $("#search-btn").css("display", "none");
+            $("#stop-btn").css("display", "block");
+
+            var randnum = Math.floor(Math.random()*1001); //magic starts here
+
+            $.ajax({
+                cache : false,
+                type : "GET",
+                url : url,
+                success : function(task_id){
+
+                    $("#task_id").val(task_id);
+
+                    var progressUrl = "{% url 'celery_progress:task_status' %}?task_id=" + task_id + "&random=" + randnum;
+
+                    $(function(){
+                        console.log("hi");
+                        CeleryProgressBar.initProgressBar(progressUrl)
+                    });
+
+                }, error : function(request, status, error){
+
+                }
+
+            });
+
+        }
+
+
+        $('#progress-bar-message').on("DOMSubtreeModified",function(){
+
+            if($(this).html() == "Success!"){
+
+                $("#stop-btn").css("display", "none");
+                $("#search-btn").css("display", "block");
+                $("#progress-bar").css("width", "0%");
+                $("#progress-bar-message").html("");
+                $("#progress-bar-message").css("display", "none");
+                $(".progress-bar").css("height", "0");
+
+                var task_id = $("#task_id").val();
+
+                var date_temp = new Date().getTime();
+
+                var url = "{% url 'app:get_task_result' %}?task_id=" + task_id + "&date_temp=" + date_temp;
+
+                $.ajax({
+                    cache : false,
+                    type : "GET",
+                    url : url,
+                    success : function(data){
+
+                        // notice search info
+                        var search_info = data[0]["search_info"],
+                            all_url_num = search_info["all_url_num"],
+                            html_url_num = search_info["html_url_num"],
+                            pdf_url_num = search_info["pdf_url_num"],
+                            found_url_num_in_html = search_info["found_url_num_in_html"],
+                            found_company_num_in_html = search_info["found_company_num_in_html"],
+                            found_url_num_in_pdf = search_info["found_url_num_in_pdf"],
+                            found_company_num_in_pdf = search_info["found_company_num_in_pdf"],
+                            found_company_num_in_all = search_info["found_company_num_in_all"],
+                            running_time = search_info["running_time"];
+
+                        $("#all_url_num").html("검색에 활용 가능한 총 문서 개수<span class = 'badge badge-primary badge-pill'>" + all_url_num.toString() + " 개</span>");
+                        $("#html_url_num").html("검색에 활용한 HTML 문서 개수<span class = 'badge badge-primary badge-pill'>" + html_url_num.toString() + " 개</span>");
+                        $("#pdf_url_num").html("검색에 활용한 PDF 문서 개수<span class = 'badge badge-primary badge-pill'>" + pdf_url_num.toString() + " 개</span>");
+                        $("#found_url_num_in_html").html("HTML 문서 중 기업명을 추출한 문서 개수<span class = 'badge badge-primary badge-pill'>" + found_url_num_in_html.toString() + " 개</span>");
+                        $("#found_company_num_in_html").html("HTML 문서에서 추출된 기업명 개수<span class = 'badge badge-primary badge-pill'>" + found_company_num_in_html.toString() + " 개</span>");
+                        $("#found_url_num_in_pdf").html("PDF 문서 중 기업명을 추출한 문서 개수<span class = 'badge badge-primary badge-pill'>" + found_url_num_in_pdf.toString() + " 개</span>");
+                        $("#found_company_num_in_pdf").html("PDF 문서에서 추출된 기업명 개수<span class = 'badge badge-primary badge-pill'>" + found_company_num_in_pdf.toString() + " 개</span>");
+                        $("#found_company_num_in_all").html("총 추출된 기업명 개수<span class = 'badge badge-primary badge-pill'>" + found_company_num_in_all.toString() + " 개</span>");
+                        $("#running_time").html("총 소요 시간<span class = 'badge badge-primary badge-pill'>" + running_time.toString() + "</span>");
+
+                        // $("#search-info").css("display", "block");
+                        $("#result-div").css("display", "block");
+
+                        delete data[0]["search_info"];
+
+                        result_data = data;
+
+                        if (Object.keys(data[0]).length == 0){
+                            $("input[id='html']").parent().css("display", "none");
+                            make_datatable(data[1], "#result-div1", "case0");
+                        } else {
+                            $("input[id='html']").parent().css("display", "block");
+                            if (Object.keys(data[1]).length == 0){
+                                $("input[id='pdf']").parent().css("display", "none");
+                            } else {
+                                $("input[id='pdf']").parent().css("display", "block");
+                            }
+                            make_datatable(data[0], "#result-div1", "case0");
+                        }
+                        $("#result-select-2").val('case0');
+
+                    }, error : function (request,status,error){
+
+                    }
+                });
+            }
+
+            if ($(this).html() == "Uh-Oh, something went wrong!"){
+                $("#stop-btn").css("display", "none");
+                $("#search-btn").css("display", "block");
+            }
+        });
+
+        function make_datatable(data, wrap_div, caseNum){
+
+            var datatable_data = [],
+                filter_case = 1;
+
+            if (caseNum == "case1"){
+                filter_case = 0;
+            }
+
+            if (Object.keys(data).length == 0) {
+
+            } else {
+
+                // var temp_count = 1;
+                for (x in Object.keys(data)){
+                    var key = Object.keys(data)[x],
+                        url_num = data[key]["url_list"].length;
+
+                    var count = 0;
+                    for (var i in data[key]["case_list"]){
+                        if (data[key]["case_list"][i] != filter_case){count += 1};
+                    }
+
+                    for (i in data[key]["url_list"]){
+
+                        var title = data[key]["title_list"][i],
+                            caseVal = data[key]["case_list"][i];
+
+                        if (caseVal == filter_case){continue};
+
+                        if ((title == "") | (title == null) | (title == "undefined")){
+                            title = url;
+                        }
+
+                        var url = data[key]["url_list"][i],
+                            a_tag = "<a href = '" + url + "' target = '_blank'>" + title + "</a>"
+                            preview_content = data[key]["paragraph_list"][i].replace(/'/gi, '&#39;'),
+                            company_info_btn_tag = "",
+                            preview_btn_tag = "<button type = 'button' class = 'btn btn-default' data-toggle='popover'" +
+                             "data-content = '" + preview_content + "'><i class='fa fa-align-justify'></i></button>";
+
+                        if (data[key]["db_exist"] == "0"){
+                            company_info_btn_tag = "<button class = 'btn btn-link open-company-add-modal' id = '" + key + "'><i class='fa fa-plus'></i></button>";
+                        } else {
+                            company_info_btn_tag = "<button class = 'btn btn-link company-info-btn' id = '" + key + "'><i class='fal fa-clipboard-list'></i</button>";
+                        }
+
+                        // var row_data = [temp_count, key, count, a_tag, preview_btn_tag, company_info_btn_tag];
+
+                        var row_data = [key, count, a_tag, preview_btn_tag, company_info_btn_tag];
+
+                        datatable_data.push(row_data);
+
+                    }
+                }
+
+                datatable_data.sort(function(a, b) {
+                    return a[1] - b[1];
+                }).reverse();
+            }
+
+            // if a DataTable exists already
+            if($.fn.DataTable.isDataTable(wrap_div + " table")){
+                $(wrap_div + " table").DataTable().clear().rows.add(datatable_data).draw();
+            } else {
+                // make DataTable;
+                var table = $(wrap_div + " table").DataTable({
+                    "ordering" : false,
+                    columns : [/* {
+                        name : "rowspan",
+                        title : "번호"
+                    }, */
+                    {
+                        name : "rowspan",
+                        title : "기업명",
+                        "orderable": false
+                    }, {
+                        "name" : "rowspan",
+                        "title" : "빈도수",
+                        "orderable": false
+                    }, {
+                        "title" : "URL",
+                        "orderable": false
+                    }, {
+                        "title" : "영역 미리보기",
+                        "orderable": false
+                    }, {
+                        "name" : "rowspan",
+                        "title" : "기업 정보 확인",
+                        "orderable": false
+                    }],
+                    data : datatable_data,
+                    // "bDestroy" : true,
+                    "paging" : true,
+                    "lengthChange" : false,
+                    "searching" : false,
+                    "iDisplayLength": 20,
+                    "language" : {
+                        "emptyTable" : "검색 결과 없음"
+                    },
+                    rowsGroup : [
+                        "rowspan:name"
+                    ],
+                    "bInfo" : false
+                });
+
+            }
+
+            $("table tbody tr td").addClass("align-middle");
+            $("table").css("width", "100%");
+
+            $(".company-info-btn").click(function(){
+                var key = $(this).attr("id");
+
+                $("#company-name").val(key);
+                $("#business-type").val(data[key]["business_type"]);
+                $("#company-type").val(data[key]["company_type"]);
+                $("#website-url").val(data[key]["website_url"]);
+                $("#contact-number").val(data[key]["contact_number"]);
+
+                $('#companyInfoModal').modal('show');
+            });
+
+            // enable tooltips everywhere
+            $('[data-toggle="popover"]').popover({
+                'trigger' : 'hover'
+            });
+
+        };
+
+        // detect page change, and add event
+        $("#result-div1 table").on("draw.dt", function(){
+
+            $(".company-info-btn").click(function(){
+                var key = $(this).attr("id");
+
+                $("#company-name").val(key);
+                $("#business-type").val(result_data[0][key]["business_type"]);
+                $("#company-type").val(result_data[0][key]["company_type"]);
+                $("#website-url").val(result_data[0][key]["website_url"]);
+                $("#contact-number").val(result_data[0][key]["contact_number"]);
+
+                $('#companyInfoModal').modal('show');
+            });
+
+            $(".open-company-add-modal").click(function(){
+                $("#company-add-input").val($(this).attr("id"));
+                $('#companyAdd').modal("show");
+            });
+
+            $("table tbody tr td").addClass("align-middle");
+
+            // enable tooltips everywhere
+            $('[data-toggle="popover"]').popover({
+                'trigger' : 'hover'
+            });
+
+        });
+
+    });
+</script>
+</body>
+</html>
