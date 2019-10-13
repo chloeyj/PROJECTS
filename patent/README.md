@@ -10,6 +10,18 @@
 * 대학에서 보유하고 있는 우수 기술을 확산 및 활용하기 위한 빅데이터 기반 수요 기업 검색 서비스 필요
 * 키워드를 활용한 사용자 맞춤형 수요 기업 검색 서비스의 개발
 
+## 시스템 환경 
+
+* python 3.6
+* django 
+* django-Celery
+* bs4
+* konlpy
+* nltk
+* pdfminer
+* google-api-python-client
+* re
+
 ## 시스템 세부 모듈 
 
 * Google Custom Search API 기반 키워드 관련 URL 검색 모듈
