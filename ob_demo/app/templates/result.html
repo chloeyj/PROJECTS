@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+{% load staticfiles %}
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<meta name="author" content="colorlib.com">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>유사 이미지 검색 시스템</title>
+
+
+
+    <!-- Font Icon -->
+    <link rel="stylesheet" href="{% static 'fonts/material-icon/css/material-design-iconic-font.min.css' %}">
+    <link rel="stylesheet" href="{% static 'vendor/nouislider/nouislider.min.css' %}">
+
+    <!-- Main css -->
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+
+</head>
+
+<body>
+
+    <div class="main">
+
+        <div class="container">
+            <form method="POST" id="signup-form" class="signup-form" action="#">
+                <div>
+                    <h3>이미지 선택</h3>
+                    <fieldset>
+                        <h2>검색 대상 이미지 선택</h2>
+                        <p class="desc">아래 Browse 버튼을 눌러 유사한 이미지를 검색할 대상 이미지를 선택해주세요</p>
+                        <div class="col-md-4 col-md-offset-4">
+		                    <div class="form-group">
+                                <div class="main-img-preview">
+                                    <img class="thumbnail img-preview" src="{% static 'images/noun_fashion_1946397 (1).png' static %}" title="Preview Logo">
+                                </div>
+                                <div class="input-group mb-3">
+                                    <div class="input-group-prepend">
+                                        <span class="input-group-text" id="inputGroupFileAddon01">Upload</span>
+                                    </div>
+                                    <div class="custom-file">
+                                        <input type="file" class="custom-file-input" id="inputGroupFile01" aria-describedby="inputGroupFileAddon01">
+                                        <label class="custom-file-label" for="inputGroupFile01">Choose file</label>
+                                    </div>
+                                </div>
+                            </div>
+		                </div>
+                    </fieldset>
+
+                    <h3>패션 아이템 인식 결과</h3>
+                    <fieldset>
+                        <h2>검색 이미지 내 패션 아이템 인식 결과</h2>
+                        <p class="desc">해당 이미지 내에서 인식된 객체(패션 아이템)들을 확인할 수 있습니다</p>
+                        <div class="row">
+                            <div class = "col-lg-4 col-md-6 mb-4">
+                                <div class = "card h-100">
+                                    <img class = "card-img-top" src = "{% static 'images/jacket.png' %}">
+                                </div>
+                                <div class = "card-body">
+                                    <p class = "card-text">
+                                        Cardigan (98%)
+                                    </p>
+                                </div>
+                            </div>
+                            <div class = "col-lg-4 col-md-6 mb-4">
+                                <div class = "card h-100">
+                                    <img class = "card-img-top" src = "{% static 'images/jean.png' %}">
+                                </div>
+                                <div class = "card-body">
+                                    <p class = "card-text">
+                                        Jeans (72%)
+                                    </p>
+                                </div>
+                            </div>
+                            <div class = "col-lg-4 col-md-6 mb-4">
+                                <div class = "card h-100">
+                                    <img class = "card-img-top" src = "{% static 'images/tee.png' %}">
+                                </div>
+                                <div class = "card-body">
+                                    <p class = "card-text">
+                                        Tee (82%)
+                                    </p>
+                                </div>
+                            </div>
+
+                        </div>
+                    </fieldset>
+                </div>
+            </form>
+        </div>
+
+    </div>
+    <footer class = "footer">
+        <div class = "">
+            <span class = "text-muted text-center">Copyright © ENLIPLE All rights reserved.</span>
+        </div>
+    </footer>
+
+<!-- JS -->
+<script src="{% static 'vendor/jquery/jquery.min.js' %}"></script>
+<script src="{% static 'vendor/jquery-validation/dist/jquery.validate.min.js' %}"></script>
+<script src="{% static 'vendor/jquery-validation/dist/additional-methods.min.js' %}"></script>
+<script src="{% static 'vendor/jquery-steps/jquery.steps.js' %}"></script>
+<script src="{% static 'vendor/minimalist-picker/dobpicker.js' %}"></script>
+<script src="{% static 'vendor/nouislider/nouislider.min.js' %}"></script>
+<script src="{% static 'vendor/wnumb/wNumb.js' %}"></script>
+<script src="{% static 'js/main.js' %}"></script>
+
+<!-- Bootstrap -->
+<script src = "https://code.jquery.com/jquery-3.4.1.min.js" integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" type = 'text/javascript' integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+
+<script>
+    $(document).ready(function() {
+
+        // Source: http://stackoverflow.com/a/4459419/6396981
+        function readURL(input) {
+            if (input.files && input.files[0]) {
+                var reader = new FileReader();
+
+                reader.onload = function(e) {
+                    $('.img-preview').attr('src', e.target.result);
+                };
+                reader.readAsDataURL(input.files[0]);
+
+
+            }
+        }
+        $("#inputGroupFile01").change(function() {
+            var fileName = this.files[0]. name;
+            if (!this.files[0].name.match(/.(jpg|jpeg|png|gif)$/i)){
+                alert('이미지 형식이 아닙니다');
+            } else {
+                $("label[for='inputGroupFile01']").html(fileName);
+                readURL(this);
+
+                // console.log($("label[for='inputGroupFile01']").html());
+            }
+        });
+
+        $("a[href='#next']").on("click", function(){
+
+
+            var img_fname = $("label[for='inputGroupFile01']").html(),
+                url = "{%url 'app:detect' %}?fname=" + img_fname;
+
+            location.href = url;
+
+        });
+    });
+
+</script>
+</body>
+
+</html>

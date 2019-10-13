@@ -1,0 +1,16 @@
+item {
+  id: 1
+  name: 'Blouse'
+}item {
+  id: 2
+  name: 'Tee'
+}item {
+  id: 3
+  name: 'Shorts'
+}item {
+  id: 4
+  name: 'Skirt'
+}item {
+  id: 5
+  name: 'Dress'
+}
