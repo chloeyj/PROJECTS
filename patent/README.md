@@ -17,5 +17,5 @@
 ## 시스템 구성 및 흐름도
 
 <p align="center">
-  <img src="architecture.png" width=676 height=450>
+  <img src="architecture.png" width=800 height=450>
 </p>
