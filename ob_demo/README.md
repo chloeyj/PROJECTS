@@ -26,7 +26,7 @@
 ## 검출 테스트 결과 
 
 <p align="center">
-  <img src="img/test1.jpg" width=800 height=800>
-  <img src="img/test2.jpg" width=800 height=800>
-  <img src="img/test3.jpg" width=800 height=800>
+  <img src="img/test1.jpg" width=500 height=250>
+  <img src="img/test2.jpg" width=500 height=250>
+  <img src="img/test3.jpg" width=500 height=250>
 </p>
