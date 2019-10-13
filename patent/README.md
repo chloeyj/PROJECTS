@@ -51,3 +51,24 @@
 <p align="center">
   <img src="architecture.png" width=800 height=450>
 </p>
+
+## 시스템 화면
+
+* 메인 화면
+
+<p align="center">
+  <img src="main2.png" width=800 height=450>
+</p>
+
+* 검색 결과 화면
+
+<p align="center">
+  <img src="result1.png" width=800 height=450>
+  <img src="result2.png" width=800 height=450>
+</p>
+
+* 기업 DB 관리 화면 
+
+<p align="center">
+  <img src="db.png" width=800 height=450>
+</p>
