@@ -2,7 +2,7 @@
 # 패션 상품 검출 시스템
 
 <p align="center">
-  <img src="img/main.png" width=800 height=200>
+  <img src="img/main.png" width=800 height=800>
 </p>
 
 ## 시스템 배경 및 목적
