@@ -2,7 +2,7 @@
 # 빅데이터 기업 검색 시스템 
 
 <p align="center">
-  <img src="main.png" width=800 height=200>
+  <img src="img/main.png" width=800 height=200>
 </p>
 
 ## 시스템 배경 및 목적
@@ -33,7 +33,7 @@
 * 조건식을 활용하여 다양한 키워드로 검색할 수 있는 기능 제공
 * ex) "비침습 and 혈당 and (센서 or 측정기) – 침습")
 <p align="center">
-  <img src="condition.png" width=800 height=200>
+  <img src="img/condition.png" width=800 height=200>
 </p>
 
 ## 기업 DB 기반 기업명 추출 모듈 
@@ -42,14 +42,14 @@
 ## 기업명 등장 패턴 기반 기업명 추출 모듈 
 * 기업명이 빈번하게 등장하는 특정 패턴을 찾아 정의하고, 이를 기반으로 기업명 포함 여부 확인
 <p align="center">
-  <img src="pattern.png" width=800 height=450>
+  <img src="img/pattern.png" width=800 height=450>
 </p>
   
 
 ## 시스템 구성 및 흐름도
 
 <p align="center">
-  <img src="architecture.png" width=800 height=450>
+  <img src="img/architecture.png" width=800 height=450>
 </p>
 
 ## 시스템 화면
@@ -57,18 +57,18 @@
 * 메인 화면
 
 <p align="center">
-  <img src="main2.png" width=800 height=450>
+  <img src="img/main2.png" width=800 height=450>
 </p>
 
 * 검색 결과 화면
 
 <p align="center">
-  <img src="result1.png" width=800 height=450>
-  <img src="result2.png" width=800 height=450>
+  <img src="img/result1.png" width=800 height=450>
+  <img src="img/result2.png" width=800 height=450>
 </p>
 
 * 기업 DB 관리 화면 
 
 <p align="center">
-  <img src="db.png" width=800 height=450>
+  <img src="img/db.png" width=800 height=450>
 </p>
