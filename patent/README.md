@@ -38,7 +38,7 @@
 ## 기업명 등장 패턴 기반 기업명 추출 모듈 
 * 기업명이 빈번하게 등장하는 특정 패턴을 찾아 정의하고, 이를 기반으로 기업명 포함 여부 확인
 <p align="center">
-  <img src="pattern.png" width=800 height=200>
+  <img src="pattern.png" width=700 height=450>
 </p>
   
 
