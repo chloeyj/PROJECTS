@@ -52,7 +52,7 @@
   <img src="img/architecture.png" width=800 height=450>
 </p>
 
-## 시스템 화면
+## 화면
 
 * 메인 화면
 
