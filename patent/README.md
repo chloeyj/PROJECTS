@@ -20,7 +20,6 @@
 * nltk
 * pdfminer
 * google-api-python-client
-* re
 
 ## 시스템 세부 모듈 
 
