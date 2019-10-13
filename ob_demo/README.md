@@ -22,3 +22,11 @@
 * 총 5가지 카테고리(티셔츠, 블라우스, 반바지, 치마, 원피스) 상품을 검출할 수 있음
 * Faster R-CNN 모델 활용
 * 약 84%의 mAP@0.5IoU를 갖음
+
+## 검출 테스트 결과 
+
+<p align="center">
+  <img src="img/test1.jpg" width=800 height=800>
+  <img src="img/test2.jpg" width=800 height=800>
+  <img src="img/test3.jpg" width=800 height=800>
+</p>
